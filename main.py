@@ -68,7 +68,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
         spots.append(f"• {report['senderCallsign']} → {report['receiverCallsign']} @ {report['frequency']} Hz, {dist} km, {report['sNR']} dB, há {minutesAgo} min")
 
     if spots != []:
-        await context.bot.send_message(js8_group, '\n'.join(spots))
+        await context.bot.send_message(js8_group, '\n'.join(spots), disable_notification=True)
 
 
 async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
