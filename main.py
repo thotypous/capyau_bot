@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import os
-from datetime import timedelta, datetime
+from datetime import date, timedelta, datetime
 
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
@@ -12,7 +12,7 @@ from qth_locator import square_to_location
 from haversine import haversine
 import countries
 
-js8_group = -1001550712749
+js8_group = -1001392437961
 
 cc = countries.CountryChecker('br.shp')
 
@@ -26,16 +26,33 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
+lastQueryDuration = None
+lastSequenceNumber = None
+
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
-    #requests.get('https://pskreporter.info/cgi-bin/pskquery5.pl?encap=0&callback=doNothing&statistics=0&noactive=1&nolocator=1&flowStartSeconds=-3600&mode=JS8&modify=all&callsign=ZZZZZ')
-    with open('sample_pskreporter') as f:
-        data = f.read()
-    
-    data = json.loads(data.removeprefix('doNothing(').removesuffix(');\n'))
+    global lastQueryDuration, lastSequenceNumber
+
+    url = 'https://pskreporter.info/cgi-bin/pskquery5.pl?encap=0&callback=doNothing&statistics=0&noactive=1&nolocator=1&flowStartSeconds=-600&mode=JS8&modify=all&callsign=ZZZZZ'
+    if lastSequenceNumber != None:
+        url += f'&lastseqno={lastSequenceNumber}'
+    if lastQueryDuration != None:
+        url += f'&lastDuration={lastQueryDuration}'
+
+    t1 = datetime.now()
+    r = requests.get(url)
+    r.raise_for_status()
+    t2 = datetime.now()
+
+    lastQueryDuration = round(1000*(t1-t2).total_seconds())
+
+    data = json.loads(r.text.removeprefix('doNothing(').removesuffix(');\n'))
+
+    lastSequenceNumber = data['lastSequenceNumber']
 
     spots = []
 
     for report in data['receptionReport']:
+        print(report)
         rx_lat, rx_lon = square_to_location(report['receiverLocator'][:8])
 
         country = cc.getCountry(countries.Point(rx_lat, rx_lon))
