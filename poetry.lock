@@ -183,6 +183,17 @@ files = [
 ]
 
 [[package]]
+name = "haversine"
+version = "2.8.0"
+description = "Calculate the distance between 2 points on Earth."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "haversine-2.8.0-py2.py3-none-any.whl", hash = "sha256:524529d6c39619a513629b68331ce8153ccfc7c30049ed43405c27b12614e8f6"},
+    {file = "haversine-2.8.0.tar.gz", hash = "sha256:cca39afd2ae5f1e6ed9231b332395bb8afb2e0a64edf70c238c176492e60c150"},
+]
+
+[[package]]
 name = "httpcore"
 version = "0.17.3"
 description = "A minimal low-level HTTP client."
@@ -366,4 +377,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "16a9b15b2b0c3c6cda6e176f69b22a70653ad236cb573a28ea20f8727be302a0"
+content-hash = "d024add95d4d4e041ecb20910ac48f820646eaf6a694a206f7b2c6de9138dee0"
