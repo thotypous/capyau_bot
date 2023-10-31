@@ -52,20 +52,24 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     spots = []
 
     for report in data['receptionReport']:
-        print(report)
-        rx_lat, rx_lon = square_to_location(report['receiverLocator'][:8])
+        frequency = report['frequency']
 
-        country = cc.getCountry(countries.Point(rx_lat, rx_lon))
+        if 26960000 <= frequency <= 27860000:
+            continue
+
+        rx_lat, rx_lon = square_to_location(report['receiverLocator'][:8])
+        tx_lat, tx_lon = square_to_location(report['senderLocator'][:8])
+
+        country = cc.getCountry(countries.Point(tx_lat, tx_lon))
         if country is None or country.iso != 'BR':
             continue
 
-        tx_lat, tx_lon = square_to_location(report['senderLocator'][:8])
         dist = round(haversine((rx_lat, rx_lon), (tx_lat, tx_lon)))
 
         flowStart = datetime.fromtimestamp(report['flowStartSeconds'])
         minutesAgo = round((datetime.now() - flowStart).total_seconds()/60)
 
-        spots.append(f"• {report['senderCallsign']} → {report['receiverCallsign']} @ {report['frequency']} Hz, {dist} km, {report['sNR']} dB, há {minutesAgo} min")
+        spots.append(f"• {report['senderCallsign']} → {report['receiverCallsign']} @ {frequency} Hz, {dist} km, {report['sNR']} dB, há {minutesAgo} min")
 
     if spots != []:
         await context.bot.send_message(js8_group, '\n'.join(spots), disable_notification=True)
