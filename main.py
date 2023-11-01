@@ -56,6 +56,8 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
 
         if 26960000 <= frequency <= 27860000:
             continue
+        if report['senderCallsign'].startswith('3CW'):
+            continue
 
         rx_lat, rx_lon = square_to_location(report['receiverLocator'][:8])
         tx_lat, tx_lon = square_to_location(report['senderLocator'][:8])
