@@ -52,26 +52,29 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     spots = []
 
     for report in data['receptionReport']:
-        frequency = report['frequency']
+        try:
+            frequency = report['frequency']
 
-        if 26960000 <= frequency <= 27860000:
-            continue
-        if report['senderCallsign'].startswith('3CW'):
-            continue
+            if 26960000 <= frequency <= 27860000:
+                continue
+            if report['senderCallsign'].startswith('3CW'):
+                continue
 
-        rx_lat, rx_lon = square_to_location(report['receiverLocator'][:8])
-        tx_lat, tx_lon = square_to_location(report['senderLocator'][:8])
+            rx_lat, rx_lon = square_to_location(report['receiverLocator'][:8])
+            tx_lat, tx_lon = square_to_location(report['senderLocator'][:8])
 
-        country = cc.getCountry(countries.Point(tx_lat, tx_lon))
-        if country is None or country.iso != 'BR':
-            continue
+            country = cc.getCountry(countries.Point(tx_lat, tx_lon))
+            if country is None or country.iso != 'BR':
+                continue
 
-        dist = round(haversine((rx_lat, rx_lon), (tx_lat, tx_lon)))
+            dist = round(haversine((rx_lat, rx_lon), (tx_lat, tx_lon)))
 
-        flowStart = datetime.fromtimestamp(report['flowStartSeconds'])
-        minutesAgo = round((datetime.now() - flowStart).total_seconds()/60)
+            flowStart = datetime.fromtimestamp(report['flowStartSeconds'])
+            minutesAgo = round((datetime.now() - flowStart).total_seconds()/60)
 
-        spots.append(f"• {report['senderCallsign']} → {report['receiverCallsign']} @ {frequency} Hz, {dist} km, {report['sNR']} dB, há {minutesAgo} min")
+            spots.append(f"• {report['senderCallsign']} → {report['receiverCallsign']} @ {frequency} Hz, {dist} km, {report['sNR']} dB, há {minutesAgo} min")
+        except:
+            logger.exception('processing report: %r', report)
 
     if spots != []:
         await context.bot.send_message(js8_group, '\n'.join(spots), disable_notification=True)
