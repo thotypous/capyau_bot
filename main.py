@@ -7,6 +7,7 @@ from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 import requests
+import string
 import json
 from qth_locator import square_to_location
 from haversine import haversine
@@ -57,7 +58,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
 
             if 26960000 <= frequency <= 27860000:
                 continue
-            if report['senderCallsign'].startswith('3CW'):
+            if report['senderCallsign'][0].isnumeric():
                 continue
 
             rx_lat, rx_lon = square_to_location(report['receiverLocator'][:8])
