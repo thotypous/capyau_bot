@@ -7,7 +7,6 @@ from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 import requests
-import string
 import json
 from qth_locator import square_to_location
 from haversine import haversine
